@@ -35,6 +35,11 @@
 package com.example.drinkit
 
 
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -43,22 +48,25 @@ import com.google.firebase.messaging.RemoteMessage
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
 
-  // TODO: add onCreate
+  private var broadcaster: LocalBroadcastManager? = null
+
   override fun onCreate() {
     super.onCreate()
+    broadcaster = LocalBroadcastManager.getInstance(this)
   }
 
-  // TODO: override onNewToken
   override fun onNewToken(token: String) {
     super.onNewToken(token)
   }
 
-  // TODO: add an onMessageReceived function
   override fun onMessageReceived(message: RemoteMessage) {
     super.onMessageReceived(message)
+    handleMessage(message)
+
   }
 
   // TODO: add a handle message method
+
 
   // TODO: Create a message receiver constant
 
@@ -66,5 +74,20 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
     private const val TAG = "MyFirebaseMessagingS"
   }
 
+  private fun handleMessage(remoteMessage: RemoteMessage) {
+    val handler = Handler(Looper.getMainLooper())
+
+    handler.post {
+      Toast.makeText(
+        baseContext, getString(R.string.handle_notification_now),
+        Toast.LENGTH_LONG
+      ).show()
+    }
+    remoteMessage.notification?.let {
+      val intent = Intent("MyData")
+      intent.putExtra("message", remoteMessage.data["text"]);
+      broadcaster?.sendBroadcast(intent);
+    }
+  }
 
 }
